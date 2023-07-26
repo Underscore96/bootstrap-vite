@@ -20,7 +20,8 @@ export class Manager{
 
 
     orderTodosByCompletion(){
-        this.todoArray.sort((todo1, todo2) => todo1.compareByCompletion(todo2))
+        const completedFirst = this.todoArray.sort((todo1, todo2) => Number(todo1.isCompleted - todo2.isCompleted));
+        return completedFirst;
     }
 
     changeCompleteStatus(index){

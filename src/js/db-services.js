@@ -63,5 +63,15 @@ export class DBService{
 
     }
 
+    static createTodo(todo) {
+        const createUrl =
+            "https://64b512c3f3dbab5a95c6a4a0.mockapi.io/todos";
+        return fetch(createUrl, {
+            method: "post",
+            body: JSON.stringify(todo),
+            headers: { "content-type": "application/json" },
+        }).then((resp) => resp.json());
+    }
+
 
 }

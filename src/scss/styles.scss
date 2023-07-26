@@ -1,2 +1,47 @@
 /* // Import all of Bootstrap's CSS */
 @import "~bootstrap/scss/bootstrap";
+
+.card{
+    gap: 4px;
+    margin: 4px;
+    padding: 4px;
+    border: 3px solid red;
+    background-color: #107fa1ee;
+    width: 32%;
+    height: 140px;
+    margin-bottom: 2%; /* (100-32*3)/2 */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    
+}
+
+
+.bottom-div{
+    display: flex;
+    flex-direction: column;
+    overflow-wrap: inherit;
+    
+}
+
+*h1{
+    color: white;
+}
+
+#todo-container{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    justify-self: center;
+    
+}
+
+// .empty-div{
+//     flex: 1;
+// }
+
+*body{
+    background-image: url('https://www.artlebedev.com/yandex/kit-wallpapers/yandex-kit-wallpapers.gif');
+    // background-repeat: no-repeat;
+    // background-size: 100%;
+}
