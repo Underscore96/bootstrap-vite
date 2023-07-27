@@ -1,199 +1,179 @@
-
 // Import our custom CSS
-import '../scss/styles.scss'
+import "../scss/styles.scss";
 // Import all of Bootstrap's JS
-import * as bootstrap from 'bootstrap'
-import { Todo } from './todo';
-import { DBService } from './db-services'
-
-
-
-
-import { Manager } from './manager';
+import * as bootstrap from "bootstrap";
+import { Todo } from "./todo";
+import { DBService } from "./db-services";
+import { Manager } from "./manager";
+import confetti from "canvas-confetti";
 
 let manager;
 
-DBService.getAllTodos().then(todos => {
+DBService.getAllTodos().then((todos) => {
     manager = new Manager(todos);
     render();
-})
+});
 
-
-
-
-
-
-
-function render(){
-    
-    const todoContainer=document.getElementById('todo-container'); 
-    todoContainer.innerHTML= '';
+function render() {
+    const todoContainer = document.getElementById("todo-container");
+    todoContainer.innerHTML = "";
 
     for (let i = 0; i < manager.todoArray.length; i++) {
-
         const todo = manager.todoArray[i];
 
-        const div=document.createElement('div');
-        div.classList.add('card');
+        const div = document.createElement("div");
+        div.classList.add("col-md-3");
+        div.classList.add("card");
+        // div.classList.add('m-3');
+        div.classList.add("p-3");
 
-        if(!todo.isCompleted){
-            div.style.borderColor='#2f6b2fd8';
-        }
+        const titleStrong = document.createElement("strong");
+        const titleNode = document.createTextNode(todo.title);
 
-        
-        const titleStrong=document.createElement('strong');
-        const titleNode=document.createTextNode(todo.title);
         titleStrong.appendChild(titleNode);
         div.appendChild(titleStrong);
-        
-        const dateSpan=document.createElement('span');
-        const dateNode=document.createTextNode(todo.creationDate.toISOString());
+
+        const dateSpan = document.createElement("span");
+        const dateNode = document.createTextNode(
+            todo.creationDate.toISOString().substring(0, 10)
+        );
+        // console.log(todo.creationDate.)
 
         dateSpan.appendChild(dateNode);
+        div.appendChild(dateSpan);
 
-        const topDiv = document.createElement("div");
-        topDiv.appendChild(titleStrong);
-        topDiv.appendChild(dateSpan);
-        
+        const completeBtn = document.createElement("button");
 
-        div.appendChild(topDiv);
-
-        const emptyDiv = document.createElement('div');
-        emptyDiv.classList.add('empty-div');
-        div.appendChild(emptyDiv);
-        
-
-        const completeBtn = document.createElement('button');
-        const completeNode = document.createTextNode( todo.isCompleted ? 'da completare' : 'completato');
+        const completeNode = document.createTextNode(
+            todo.isCompleted ? "completato ✔️" : "da completare "
+        );
         completeBtn.classList.add("btn");
-        completeBtn.classList.add("btn-success");
-        completeBtn.addEventListener('click', () => {
+        completeBtn.classList.add("btn-outline-success");
+        completeBtn.classList.add("m-2");
 
-            const modifiedTodo = {...todo};
+        completeBtn.addEventListener("click", () => {
+            const modifiedTodo = { ...todo };
 
             if (modifiedTodo.isCompleted === true) {
                 modifiedTodo.isCompleted = false;
             } else {
+
+                // const canvas = document.createElement('canvas');
+                // canvas.classList.add('my-canvas');
+                
+                // canvas.confetti =
+                //     canvas.confetti ||
+                //     confetti.create(canvas, { resize: true });
+
+                // canvas.confetti({
+                //     spread: 70,
+                //     origin: { y: 1.2 },
+                // });
+                // div.appendChild(canvas);
+                
                 modifiedTodo.isCompleted = true;
+
             }
 
-            DBService.updateTodo(modifiedTodo).then(res => {
+
+            DBService.updateTodo(modifiedTodo).then((res) => {
                 manager.changeCompleteStatus(i);
                 render();
-            })
- 
+            });
         });
 
-        
+        if (todo.isCompleted) {
+            div.style.borderColor = "lime";
+            div.style.backgroundColor = "#00ff003b";
+            div.addEventListener("mouseover", () => {
+                div.style.backgroundColor = "rgb(0 255 0 / 47%)";
+            });
+
+            div.addEventListener("mouseout", () => {
+                div.style.backgroundColor = "#00ff003b";
+            });
+        }
 
         completeBtn.appendChild(completeNode);
-        // div.appendChild(completeBtn);
+        div.appendChild(completeBtn);
 
-
-        const deleteBtn = document.createElement('button');
-        const deleteNode = document.createTextNode('cancella');
+        const deleteBtn = document.createElement("button");
+        const deleteNode = document.createTextNode("cancella ✖️");
         deleteBtn.classList.add("btn");
-        deleteBtn.classList.add("btn-danger");
-        deleteBtn.addEventListener('click', () => {
-
+        deleteBtn.classList.add("btn-outline-danger");
+        deleteBtn.classList.add("m-2");
+        deleteBtn.addEventListener("click", () => {
             DBService.deleteTodo(todo.id).then(() => {
                 manager.deleteTodo(i);
                 render();
             });
-            
-            
         });
 
-        const bottomDiv = document.createElement('div');
-        bottomDiv.classList.add("bottom-div")
-        bottomDiv.appendChild(completeBtn);
-        bottomDiv.appendChild(deleteBtn);
-
-        div.appendChild(bottomDiv);
-
         deleteBtn.appendChild(deleteNode);
-        //div.appendChild(deleteBtn);
+        div.appendChild(deleteBtn);
 
+        const detailBtn = document.createElement("button");
+        const detailBtnNode = document.createTextNode("dettaglio 🔍");
+        detailBtn.classList.add("btn");
+        detailBtn.classList.add("btn-outline-primary");
+        detailBtn.classList.add("m-2");
+        detailBtn.setAttribute("data-bs-toggle", "modal");
+        detailBtn.setAttribute("data-bs-target", "#detail");
+        detailBtn.addEventListener("click", () => {
+            // sessionStorage.setItem('selectedTodo', JSON.stringify(todo));
+            // window.location.href = './detail.html';
+
+            const detailModalBody =
+                document.getElementById("detail-modal-body");
+            detailModalBody.innerHTML = "";
+
+            detailModalBody.innerHTML = `<h6 class="mb-4" >${todo.title}</h6>
+            <p>Stato del todo: ${todo.isCompleted ? "" : "non"} completato</p>
+            <p>Data di creazione : ${todo.creationDate
+                .toISOString()
+                .substring(0, 10)}</>`;
+        });
+
+        detailBtn.appendChild(detailBtnNode);
+        div.appendChild(detailBtn);
 
         todoContainer.appendChild(div);
     }
-    
-    const toDoForm = document.querySelector("form").addEventListener('submit', (event) => {
-        sendData(event)
-
-        
-    })
-
-
-    const addtoDo = document.getElementById('add-todo-btn').addEventListener("click", () => {
-        manager.addTodo()
-    })
 }
 
-
-const btnOrderByTitle = document.getElementById('btnOrderByTitle');
-btnOrderByTitle.addEventListener('click', () => {    console.log('cc')
-                                                    manager.orderTodosByTitle();
-                                                    render();
-                                                });
-
-
-
-const btnOrderByDate = document.getElementById('btnOrderByDate');
-btnOrderByDate.addEventListener('click', () => {    console.log('cc')
-                                                    manager.orderTodosByDate();
-                                                    render();
-                                                });
-
-
-
-
-const btnOrderByCompletion = document.getElementById('btnOrderByCompletion');
-btnOrderByCompletion.addEventListener('click', () => {    console.log('cc')
-manager.orderTodosByCompletion();
-render();
+const btnOrderByTitle = document.getElementById("btnOrderByTitle");
+btnOrderByTitle.addEventListener("click", () => {
+    manager.orderTodosByTitle();
+    render();
 });
 
-
-
-
-
-function orderByDate(){
+const btnOrderByDate = document.getElementById("btnOrderByDate");
+btnOrderByDate.addEventListener("click", () => {
     manager.orderTodosByDate();
     render();
-}
+});
 
+const btnOrderByCompletion = document.getElementById("btnOrderByCompletion");
+btnOrderByCompletion.addEventListener("click", () => {
+    manager.orderTodosByCompletion();
+    render();
+});
 
+const addTodoBtn = document.getElementById("add-todo-btn");
+addTodoBtn.addEventListener("click", () => {
+    var modal = document.getElementById("exampleModal");
+    var modal = bootstrap.Modal.getInstance(modal);
 
+    const input = document.getElementById("add-todo-input");
+    const newTodoTitle = input.value;
+    if (newTodoTitle.trim() !== "") {
+        const newTodo = new Todo(newTodoTitle, false, new Date());
 
-
-
-
-function sendData(event){
-    event.preventDefault();
-    const form = document.forms['create'];
-
-
-    const formData = new FormData(form);
-
-    const newTodo = {
-        title: formData.get('title'),
-    
-        
-        isCompleted: false,
-
-        creationDate: new Date(),
-        
+        DBService.saveTodo(newTodo).then((res) => {
+            manager.addTodo(res);
+            input.value = "";
+            render();
+            modal.hide();
+        });
     }
-
-
-    console.log(newTodo);
-
-    DBService.createTodo(newTodo)
-    .then(todo => window.location = './index.html')
-    .catch(error => alert(error.message));
-
-
-
-
-}
+});
